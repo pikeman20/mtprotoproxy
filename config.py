@@ -37,11 +37,18 @@ MODES = {
 
 # The domain used in TLS mode, where bad clients are proxied
 # Use a random existing domain; the proxy checks it on start
-TLS_DOMAIN = os.getenv("TLS_DOMAIN", None)
+
+_tls_domain = os.getenv("TLS_DOMAIN")
+if _tls_domain:
+    TLS_DOMAIN = _tls_domain
+
 # Example:
 # TLS_DOMAIN = "www.google.com"
 
 # Advertising tag obtained from @MTProxybot
-AD_TAG = os.getenv("AD_TAG", None)
+_ad_tag = os.getenv("AD_TAG")
+if _ad_tag:
+    AD_TAG = _ad_tag
+
 # Example:
 # AD_TAG = "3c09c680b76ee91a4c25ad51f742267d"
