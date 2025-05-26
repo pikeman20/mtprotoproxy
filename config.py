@@ -1,27 +1,47 @@
-PORT = 443
+import os
 
-# name -> secret (32 hex chars)
-USERS = {
-    "tg":  "00000000000000000000000000000001",
-    # "tg2": "0123456789abcdef0123456789abcdef",
+# The port the proxy will listen on (default is 443)
+PORT = int(os.getenv("PORT", 443))
+
+def parse_users(env_val):
+    """
+    Parse the USERS environment variable string into a dictionary.
+    Expected format of USERS string: "username1=secret1,username2=secret2"
+    Returns a dict: { "username1": "secret1", "username2": "secret2" }
+    """
+    users = {}
+    if env_val:
+        pairs = env_val.split(",")
+        for p in pairs:
+            if "=" in p:
+                name, secret = p.split("=", 1)
+                users[name.strip()] = secret.strip()
+    return users
+
+# Get users from the USERS environment variable or use a default user if not set
+USERS = parse_users(os.getenv("USERS")) or {
+    "tg": "00000000000000000000000000000001"
 }
 
+# Proxy operating modes
 MODES = {
-    # Classic mode, easy to detect
-    "classic": False,
+    # Classic mode - easy to detect
+    "classic": os.getenv("MODE_CLASSIC", "False") == "True",
 
-    # Makes the proxy harder to detect
-    # Can be incompatible with very old clients
-    "secure": False,
+    # Secure mode - harder to detect, may be incompatible with very old clients
+    "secure": os.getenv("MODE_SECURE", "False") == "True",
 
-    # Makes the proxy even more hard to detect
-    # Can be incompatible with old clients
-    "tls": True
+    # TLS mode - hardest to detect, may be incompatible with very old clients
+    "tls": os.getenv("MODE_TLS", "True") == "True"
 }
 
-# The domain for TLS mode, bad clients are proxied there
-# Use random existing domain, proxy checks it on start
+# The domain used in TLS mode, where bad clients are proxied
+# Use a random existing domain; the proxy checks it on start
+TLS_DOMAIN = os.getenv("TLS_DOMAIN", None)
+# Example:
 # TLS_DOMAIN = "www.google.com"
 
-# Tag for advertising, obtainable from @MTProxybot
+# Advertising tag obtained from @MTProxybot
+AD_TAG = os.getenv("AD_TAG", None)
+# Example:
 # AD_TAG = "3c09c680b76ee91a4c25ad51f742267d"
